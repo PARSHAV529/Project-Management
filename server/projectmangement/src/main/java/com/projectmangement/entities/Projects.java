@@ -1,10 +1,32 @@
 package com.projectmangement.entities;
 
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+
+@Entity
 public class Projects {
+    
+
+   
+
+    @Id
+    @GeneratedValue(strategy = GenerationType.AUTO)
+    @Column(name = "Project_id")
+    private int id ;
     private String Title;
     private String Description;
     private String dueDate;
+    public int getId() {
+        return id;
+    }
 
+    public void setId(int id) {
+        this.id = id;
+    }
     @Override
     public String toString() {
         return "Projects [Title=" + Title + ", Description=" + Description + ", dueDate=" + dueDate + "]";
