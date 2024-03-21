@@ -35,7 +35,7 @@ This is a project management system built using React for the frontend and Sprin
 1. Navigate to the `frontend` directory.
 2. Run `npm install` to install dependencies.
 3. Run `npm run dev` to start the development server with Vite.
-4. Access the frontend at `http://localhost:3000`.
+4. Access the frontend at `http://localhost:5173`.
 
 ### Backend
 
@@ -44,7 +44,7 @@ This is a project management system built using React for the frontend and Sprin
 3. Configure MySQL connection properties in `application.properties`.
 4. Build the project using Maven.
 5. Run the main class `Application.java` to start the Spring Boot application.
-6. The backend will be running at `http://localhost:8080`.
+6. The backend will be running at `http://localhost:8081`.
 
 ## Usage
 
