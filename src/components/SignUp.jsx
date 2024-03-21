@@ -1,14 +1,26 @@
 // src/Components/Login.js
 import React from "react";
 import img from '../assets/no-projects.png'
+import { useNavigate } from "react-router-dom";
 
 
-const SignUp = ({handelloginButton,handelRegister}) => {
+const SignUp = () => {
+  let navigate = useNavigate()
+
+  const handelloginButton=()=>{
+    navigate("/Home")
+
+  }
+  const handelRegister=()=>{
+
+  }
 
    
   return (
+
+
     
-    <section className="h-screen  rounded-md flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center my-2 mx-5 md:mx-0 md:my-0">
+    <section className="  w-2/3 rounded-md flex flex-col md:flex-row justify-center space-y-10 md:space-y-0 md:space-x-16 items-center my-2 mx-5 md:mx-0 md:my-0 ">
       <div className="md:w-1/5  max-w-sm">
         <img
           src={img}
@@ -35,7 +47,7 @@ const SignUp = ({handelloginButton,handelRegister}) => {
           </label>
           <a
             className="text-stone-600 hover:text-stone-700 hover:underline hover:underline-offset-4"
-            href="#"
+           
           >
             Forgot Password?
           </a>
@@ -53,7 +65,9 @@ const SignUp = ({handelloginButton,handelRegister}) => {
           Don&apos;t have an account?{" "}
           <a
             className="text-red-600 hover:underline hover:underline-offset-4 cursor-pointer   "
-            onClick={handelRegister}
+            onClick={()=>{
+              navigate("/signup")
+            }}
           >
             Register
           </a>

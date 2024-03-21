@@ -1,14 +1,20 @@
-import { useRef } from "react";
+import { useEffect, useRef, useState } from "react";
+import axios from 'axios';
 import Input from "./Input";
 import Modal from "./Modal";
+import { useNavigate } from "react-router-dom";
 
 export default function NewProject({onAdd,onCancel}) {
+    const [projects, setProjects] = useState();
+    const navigate = useNavigate()
+
         let modal = useRef()
         let title=useRef()
         let description=useRef()
         let dueDate=useRef()
 
-        function handleSave(){
+      
+        const handleSave = async (e) =>{
 
             const enterdTitle=title.current.value
             const enterdDescription=description.current.value
@@ -17,11 +23,25 @@ export default function NewProject({onAdd,onCancel}) {
                 modal.current.open()
                 return;
             }
-            onAdd({
+
+            let data={
                 title:enterdTitle,
                 description:enterdDescription,
                 dueDate:enterdDueDate,
-            })
+            }
+            setProjects(data)
+            onAdd(data)
+            console.log(projects)
+
+            try {
+                const response = await axios.post('http://localhost:8081/projectmangemnet/projects', data);
+                console.log('Project added:', response.data);
+                
+                navigate("/home")
+              } catch (error) {
+                console.log(error)
+              }
+            
 
 
         }
@@ -35,9 +55,12 @@ export default function NewProject({onAdd,onCancel}) {
 
     </Modal>
     
-    <div className="w-[35rem] mt-16">
+    <div className="w-[35rem]  mt-16">
         <menu className="flex items-center justify-end gap-4 my-4">
-            <li><button className="text-stone-800 hover:text-stone-950" onClick={onCancel}>Cancel</button></li>
+            <li><button className="text-stone-800 hover:text-stone-950" onClick={()=>{
+                navigate("/home")
+                onCancel()
+            }}>Cancel</button></li>
             <li><button onClick={handleSave} className="px-6 py-2 rounded-md bg-stone-800 text-stone-50 hover:bg-stone-950">Save</button></li>
         </menu>
         <form action="">

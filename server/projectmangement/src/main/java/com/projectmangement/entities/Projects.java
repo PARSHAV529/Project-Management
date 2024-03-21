@@ -14,7 +14,7 @@ public class Projects {
    
 
     @Id
-    @GeneratedValue(strategy = GenerationType.AUTO)
+    @GeneratedValue(strategy = GenerationType.SEQUENCE)
     @Column(name = "Project_id")
     private int id ;
     private String Title;

@@ -1,19 +1,68 @@
-import { useState,useRef } from "react";
+import { useState, useRef, useEffect } from "react";
 import NewProject from "./components/NewProject.jsx";
 import NoProjectSelected from "./components/NoProjectSelected.jsx";
 import ProjectSidebar from "./components/ProjectSideBar.jsx";
 import { SelectedProject } from "./components/SelectedProject.jsx";
-import Modal from "./components/Modal.jsx";
+import { fetchProjects } from "./store/projectSlice.js";
 import SignUp from "./components/SignUp.jsx";
 import RegisterForm from "./components/RegisterForm.jsx";
+import { useDispatch, useSelector } from "react-redux";
+import { BrowserRouter, Route, Routes } from "react-router-dom";
+import ProjectCard from "./components/ProjectCard.jsx";
+import { Projects } from "./pages/Projects.jsx";
+import axios from "axios";
+import Modal from "./components/Modal.jsx";
+
 
 function App() {
+  let [fetch,setFetch] = useState('');
+// let [selectedProject,setSelectedProject] = useState()
+ 
   let [projectState, setProjectState] = useState({
     selectedProjectId: undefined,
     projects: [],
     tasks: [],
   })
   let modal = useRef()
+  const dispatch = useDispatch();
+  const { projects } = useSelector((state) => state.projects);
+  useEffect(() => {
+    dispatch(fetchProjects());
+setFetch('')
+
+  }, [dispatch,fetch]);
+
+ 
+
+  useEffect(() => {
+
+    setProjectState(prevState => {
+      return {
+        ...prevState,
+        selectedProjectId: undefined,
+        projects: projects,
+      }
+    })
+
+  }, [projects]);
+
+  // useEffect(() => {
+  //   const fetchProject = async () => {
+  //     try {
+  //       const response = await axios.get(`http://localhost:8081/projectmangemnet/projects/${projectState.selectedProjectId}`);
+   
+  //     } catch (error) {
+       
+  //     }
+  //   };
+
+  //   fetchProject();
+
+  //   // Cleanup function
+  //   return () => {
+  //     // Abort fetch if component unmounts before request is completed
+  //   };
+  // }, [projectState.selectedProjectId]);
 
   function handleAddTask(text) {
     setProjectState((prevState) => {
@@ -32,7 +81,7 @@ function App() {
   }
 
   function handleDeleteTask(id) {
-    
+
     setProjectState((prevState) => {
       return {
         ...prevState,
@@ -42,6 +91,8 @@ function App() {
   }
 
   function handleStartAddProject() {
+    
+   
     setProjectState(prevState => {
       return {
         ...prevState,
@@ -49,10 +100,11 @@ function App() {
 
       }
     })
+
   }
   function handleCancelAddProject() {
-    
-    
+
+
     setProjectState(prevState => {
       return {
         ...prevState,
@@ -65,18 +117,20 @@ function App() {
   function handleAddProject(projectData) {
 
 
-    const newProject = {
-      ...projectData,
-      id: Math.random()
-    }
+
 
     setProjectState(prevState => {
       return {
         ...prevState,
         selectedProjectId: undefined,
-        projects: [...prevState.projects, newProject],
+        projects: [...prevState.projects, projectData],
       }
     })
+
+    setFetch('added')
+    
+    // dispatch(addProject(projectData));
+    dispatch(fetchProjects());
 
   }
 
@@ -90,30 +144,41 @@ function App() {
     })
 
   }
-function handlemodalDelete(id){
- 
-  setProjectState(prevState => {
-    return {
-      ...prevState,
-      selectedProjectId: undefined,
-      projects: prevState.projects.filter(project => project.id !== prevState.selectedProjectId)
+  const handlemodalDelete= async(id)=>  {
+    console.log(id)
 
+    try {
+    await axios.delete(`http://localhost:8081/projectmangemnet/projects/${id}`);
+      // console.log('Project added:', response.data);
+     
+    } catch (error) {
+      console.log(error)
     }
-  })
-}
-  function handleDeleteProject() {
-    
-    modal.current.open()
+  
+
+    setProjectState(prevState => {
+      return {
+        ...prevState,
+        selectedProjectId: undefined,
+        projects: prevState.projects.filter(project => project.id !== prevState.selectedProjectId)
+
+      }
+    })
+  }
+  function handleDeleteProject(id) {
+
+    modal.current.open(id)
 
   }
   const selectedProject = projectState.projects.find(projects => projects.id === projectState.selectedProjectId)
 
-  let content = <SelectedProject 
-                projects={selectedProject} 
-                onDelete={handleDeleteProject}
-                onAddTask={handleAddTask} 
-                onDeleteTask={handleDeleteTask}
-                tasks={projectState.tasks}/>;
+  let content = <SelectedProject
+    projects={selectedProject}
+    onDelete={handleDeleteProject}
+    onAddTask={handleAddTask}
+    onDeleteTask={handleDeleteTask}
+    tasks={projectState.tasks}
+     />;
 
 
 
@@ -123,48 +188,66 @@ function handlemodalDelete(id){
     content = <NoProjectSelected onStartAddProject={handleStartAddProject} />
   }
   console.log(projectState)
-  let [login,setLogin]= useState(false);
-  function handellogin(){
-      setLogin(true)
-      setRegister(false)  
-  }
-
-  function handelloginButton(){
-    setLogin(false)
-    setRegister(false)
-
-  }
-  let [register,setRegister] = useState(false)
-  function handelRegister(){
-    setLogin(false)
-      setRegister(true)
-  }
-  
-  return (
-  
  
-  <>
 
+
+
+  return (
+
+
+    <>
     <Modal ref={modal} buttonCaption="Delete" confirmDelete={handlemodalDelete}>
         <h2 className='text-xl font-bold text-stone-700 my-4'>confirm Delete Task?</h2>
+
+      </Modal>
+
+<BrowserRouter>
+<div className="flex gap-10">
+         <ProjectSidebar
+          onStartAddProject={handleStartAddProject}
+          projects={projectState.projects}
+          onSelectProject={handleProjectSelect}
+          selectedProjectId={projectState.selectedProjectId}
+         
+          /> 
+          
+      <Routes>
        
-    </Modal>
+        <Route path="/" element={<SignUp />} />
+        <Route path="/signup" element={<RegisterForm />} />
+        <Route path="/addProject" element={<NewProject  onAdd={handleAddProject} onCancel={handleCancelAddProject} />} />
+        <Route path="/Home" element={<NoProjectSelected onStartAddProject={handleStartAddProject} />}/>
+        <Route path="/projects" element={<Projects project={projects}   projects={projectState.projects}
+          onSelectProject={handleProjectSelect}
+          selectedProjectId={projectState.selectedProjectId} />}/>
+        <Route path="/selctedprojects" element={<SelectedProject projects={selectedProject} onDelete={handleDeleteProject} onAddTask={handleAddTask} onDeleteTask={handleDeleteTask} tasks={projectState.tasks}/>}/>
+      
+      </Routes>
+      </div>
+    </BrowserRouter>
+        {/* <SignUp/> */}
+      {/* <Modal ref={modal} buttonCaption="Delete" confirmDelete={handlemodalDelete}>
+        <h2 className='text-xl font-bold text-stone-700 my-4'>confirm Delete Task?</h2>
 
-    <main className="h-screen my-8 flex gap-8 ">
+      </Modal>
 
-      <ProjectSidebar 
-        onStartAddProject={handleStartAddProject}
-        projects={projectState.projects}
-        onSelectProject={handleProjectSelect}
-        selectedProjectId={projectState.selectedProjectId}
-        handellogin={handellogin}
-        handelRegister={handelRegister}
-      />
-    
-      {login ? <SignUp handelloginButton={handelloginButton} handelRegister={handelRegister}/> :(register ? <RegisterForm handelloginButton={handelloginButton}/> : content)}
+      <main className="h-screen my-8 flex gap-8 ">
+
+        <ProjectSidebar
+          onStartAddProject={handleStartAddProject}
+          projects={projectState.projects}
+          onSelectProject={handleProjectSelect}
+          selectedProjectId={projectState.selectedProjectId}
+          handellogin={handellogin}
+         
+        /> */}
+        {/* <ProjectCard/> */}
+
+        {/* {login ? <SignUp/> : ( ? <RegisterForm handelloginButton={handelloginButton} /> : content)} */}
 
 
-    </main></>
+      {/* </main> */}
+      </>
   );
 }
 

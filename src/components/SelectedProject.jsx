@@ -1,8 +1,10 @@
 import React from 'react'
 import Tasks from './Tasks'
+import { useNavigate } from 'react-router-dom'
 
 export const SelectedProject = ({projects,onDelete,onAddTask,onDeleteTask,tasks}) => {
-const formatedDate= new Date(projects.dueDate).toLocaleDateString("en-US",{
+    let navigate=useNavigate()
+const formatedDate= new Date(projects.due_date).toLocaleDateString("en-US",{
     year:'2-digit',
     month:'short',
     day:'2-digit'
@@ -15,7 +17,13 @@ const formatedDate= new Date(projects.dueDate).toLocaleDateString("en-US",{
         <div className='flex items-start justify-between '>
             <h1 className='text-3xl font-boldtext-stone-600 mb-2'>{projects.title}</h1>
 
-            <button className='text-stone-600 hover:text-stone-950' onClick={onDelete}>Delete</button>
+            <button className='text-stone-600 hover:text-stone-950' onClick={()=>{
+
+                onDelete(projects.id)
+                navigate("/home")
+
+                
+            }}>Delete</button>
 
         </div>
         <p className='mb-4 text-stone-400'>{formatedDate}</p>
